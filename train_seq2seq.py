@@ -31,7 +31,7 @@ class predictionDataset(Dataset):
 data_dir = 'small_dataset'
 notes_dict = json.load(open(os.path.join(data_dir, 'note_ids.json'), 'rb'))
 num_notes = len(notes_dict)
-artist = 'bach'
+artist = 'bartok'
 notes_path = os.path.join(data_dir, artist, 'train_notes')
 with open(notes_path, 'rb') as file:
     notes = pickle.load(file)
@@ -75,7 +75,7 @@ epochs = 1000
 learning_rate = 1e-3
 optimizer = torch.optim.Adam(myNet.parameters(), lr=learning_rate)
 lr_func = lambda e: 0.99**e
-# scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_func)
+scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_func)
 epochs = 100
 
 myNet = myNet.to(device)
@@ -93,7 +93,7 @@ print('starting')
 myNet = myNet.to(device)
 t_start = time.time()
 # tensorboard
-run_path = 'logs/bach_seq2seq'
+run_path = 'logs/{}_seq2seq'.format(artist)
 writer = SummaryWriter(os.path.join(run_path, 'tensorboard'))
 os.system('cp train_seq2seq.py {}'.format(run_path))
 def validate():
@@ -125,7 +125,7 @@ for e in range(epochs):
         c += 1
     loss_epoch /= c
     writer.add_scalar('training loss', loss_epoch, e+1)
-#     scheduler.step()
+    scheduler.step()
     val_loss_epoch = validate()
     writer.add_scalar('validation loss', val_loss_epoch, e+1)
     print('Train loss {}, Val loss {}'.format(loss_epoch, val_loss_epoch))
