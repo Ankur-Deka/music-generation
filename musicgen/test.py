@@ -1,5 +1,6 @@
 import argparse
 import torch
+from torch import nn
 from tqdm import tqdm
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
@@ -35,8 +36,9 @@ def main(config):
     logger.info('Loading checkpoint: {} ...'.format(config.resume))
     checkpoint = torch.load(config.resume)
     state_dict = checkpoint['state_dict']
-    if config['n_gpu'] > 1:
+    if config['n_gpu'] > 1 and False:
         model = torch.nn.DataParallel(model)
+
     model.load_state_dict(state_dict)
 
     # prepare model for testing
@@ -50,14 +52,16 @@ def main(config):
     with torch.no_grad():
         for i, data in enumerate(tqdm(data_loader)):
             data = to_device(data, device)
-            if config['n_gpu'] > 1:
+            if isinstance(model, nn.DataParallel):
                 notes = model.module.generate_notes(data)
             else:
                 notes = model.generate_notes(data)
 
             # save sample images, or do something with output here
-            print(notes)
+            #print(len(notes), notes[0].shape)
+            print(notes.shape)
 
+        data_loader.dataset.convert_to_midi(notes)
 
 
 

@@ -5,7 +5,7 @@
         "type": "Transformer",
         "args": {
             "num_classes": 219,
-            "embed_dim": 64
+            "embed_dim": 128
         }
     },
     "data_loader": {

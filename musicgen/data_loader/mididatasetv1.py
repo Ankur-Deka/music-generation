@@ -1,6 +1,9 @@
 from data_loader.datautils import *
 from os import path as osp
 from torch.utils.data import Dataset
+from music21 import midi, stream
+from music21 import converter, instrument, note, chord
+from itertools import groupby
 
 
 class BasicMidiDataset(Dataset):
@@ -50,6 +53,13 @@ class BasicMidiDataset(Dataset):
             self.count = [1]*len(self.count)
         print(self.count)
         self.length = sum(self.count)
+        self.get_reverse_vocab()
+
+    def get_reverse_vocab(self, ):
+        self.revvocab = dict()
+        for k, v in self.vocab.items():
+            self.revvocab[v[1]] = k
+
 
     def __len__(self):
         return self.length
@@ -77,6 +87,38 @@ class BasicMidiDataset(Dataset):
                 'weight': torch.FloatTensor(self.weights),
                 'out': torch.LongTensor([out]).squeeze(),
         }
+
+    def convert_to_midi(self, notes):
+        # given array of notes, convert to notes and then to midi
+        B, S = notes.shape
+        for i in range(B):
+            # parse a sequence
+            melody = []
+            offset = 0
+            for s in range(S):
+                # Something like A#
+                token = self.revvocab[notes[i, s]]
+                if '.' in token or token.isdigit():
+                    new_note = token.split('.')
+                    new_note = [note.Note(int(x)) for x in new_note]
+                    for _ in range(len(new_note)):
+                        new_note[_].storedInstrument = instrument.Piano()
+                    new_chord = chord.Chord(new_note)
+                    new_chord.offset = offset
+                    melody.append(new_chord)
+                else:
+                    # note
+                    new_note = note.Note(token)
+                    new_note.offset = offset
+                    new_note.storedInstrument = instrument.Piano()
+                    melody.append(new_note)
+                offset += 0.5
+            # Parsed entire sequence, save it
+            midistream = stream.Stream(melody)
+            filename = self.files[i].split('/')[-1]
+            filename = filename.replace('.mid', '_output.mid')
+            midistream.write('midi', filename)
+            print("Written to {}".format(filename))
 
 
 

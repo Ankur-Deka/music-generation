@@ -1,5 +1,4 @@
 import torch.nn as nn
-import numpy as np
 import torch
 import torch.nn.functional as F
 from base import BaseModel
@@ -11,10 +10,10 @@ class Transformer(nn.Module):
             ):
         super().__init__()
         self.embedding = nn.Embedding(num_classes, embed_dim)
-        self.encoder_layer = nn.TransformerEncoderLayer(embed_dim, nhead=8)
-        self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=1)
+        self.encoder_layer = nn.TransformerEncoderLayer(embed_dim*2, nhead=8)
+        self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=8)
         self.fc = nn.Sequential(
-            nn.Linear(embed_dim, embed_dim),
+            nn.Linear(embed_dim*2, embed_dim),
             nn.LeakyReLU(),
             nn.Linear(embed_dim, embed_dim),
             nn.LeakyReLU(),
@@ -31,17 +30,18 @@ class Transformer(nn.Module):
         x = X['seq']
         pos = self.pos_embedding(x) # [B, S, E]
         embed = self.embedding(x)   # [B, S, E]
-        embed = embed + pos
+        embed = torch.cat([embed, pos], -1)  # [B, S, 2E]
 
-        embedpermute = embed.permute(1, 0, 2)  # [S, B, E]
+        embedpermute = embed.permute(1, 0, 2)  # [S, B, 2E]
         # Get output
-        out = self.encoder(embedpermute)   # [S, B, E]
+        out = self.encoder(embedpermute)   # [S, B, 2E]
         out = out.mean(0)  # [B, 2E]
         # Final output
         out = self.fc(out)  # [B, C]
         return {
                 'out': out,
         }
+
 
     def generate_notes(self, x, N=500):
         # Given sequence, generate notes
@@ -54,8 +54,6 @@ class Transformer(nn.Module):
             # Append it to sequence
             seq = torch.cat([seq, outmax], 1)            # [B, S+1]
             seq = seq[:, 1:]                             # [B, S]
-        # Process them
-        notes = np.concatenate(notes, -1).astype(int)    # [B, N]
         return notes
 
 

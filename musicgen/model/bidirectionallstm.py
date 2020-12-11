@@ -1,4 +1,5 @@
 import torch.nn as nn
+import numpy as np
 import torch
 import torch.nn.functional as F
 from base import BaseModel
@@ -58,6 +59,8 @@ class BiDirectionalLSTM(nn.Module):
             # Append it to sequence
             seq = torch.cat([seq, outmax], 1)            # [B, S+1]
             seq = seq[:, 1:]                             # [B, S]
+        # Process them
+        notes = np.concatenate(notes, -1).astype(int)    # [B, N]
         return notes
 
 
