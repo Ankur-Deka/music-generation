@@ -1,5 +1,5 @@
 {
-    "name": "AlbTransformerMidiV1",
+    "name": "MussTransformerMidiV1",
     "n_gpu": 2,
     "arch": {
         "type": "Transformer",
@@ -13,7 +13,7 @@
         "args":{
             "data_dir": "data/Piano-midi.de/",
             "vocab_file": "data/pianovocab.pkl",
-            "prefix": "alb",
+            "prefix": "muss",
             "batch_size": 128,
             "shuffle": true,
             "validation_split": 0.2,

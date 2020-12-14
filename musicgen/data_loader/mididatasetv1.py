@@ -19,12 +19,20 @@ class BasicMidiDataset(Dataset):
         for r, dirs, files in os.walk(r_dir):
             files = list(filter(lambda x: x.endswith("mid") or x.endswith("midi"), files))
             if prefix is not None:
-                files = list(filter(lambda x: x.startswith(prefix), files))
+                if isinstance(prefix, str):
+                    files = list(filter(lambda x: x.startswith(prefix), files))
+                elif isinstance(prefix, list):
+                    files = list(filter(lambda x: any([x.startswith(y) for y in prefix]), files))
+                else:
+                    raise NotImplementedError
+
             files = list(map(lambda x: osp.join(r, x), files))
             self.files.extend(files)
 
         if crop is not None:
             self.files = self.files[:crop]
+
+        print(self.files)
 
         # Set weights and weighing factor
         weights = [x[0] for x in self.vocab.values()]
@@ -124,7 +132,8 @@ class BasicMidiDataset(Dataset):
 
 
 if __name__ == '__main__':
-    ds = BasicMidiDataset('data/Piano-midi.de/', 'data/albenizpianovocab.pkl', crop=5, prefix="alb")
+    #ds = BasicMidiDataset('data/Piano-midi.de/', 'data/albenizpianovocab.pkl', crop=5, prefix="alb")
+    ds = BasicMidiDataset('data/Piano-midi.de/', 'data/pianovocab.pkl', crop=5, prefix=['alb', 'mendel'])
     print(len(ds))
     print(ds[0])
     print(ds[0]['weight'].shape)
