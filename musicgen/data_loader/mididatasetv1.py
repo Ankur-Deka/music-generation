@@ -16,7 +16,7 @@ class BasicMidiDataset(Dataset):
         self.N = N
         print("Loaded vocabulary of size {}".format(len(self.vocab)))
 
-        for r, dirs, files in os.walk(r_dir):
+        for r, dirs, files in os.walk(self.r_dir):
             files = list(filter(lambda x: x.endswith("mid") or x.endswith("midi"), files))
             if prefix is not None:
                 if isinstance(prefix, str):
