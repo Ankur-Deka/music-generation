@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from base import BaseModel
 from model.transformer import *
 from model.bidirectionallstm import *
+from model.predictivemodel import *
 
 class MnistModel(BaseModel):
     def __init__(self, num_classes=10):

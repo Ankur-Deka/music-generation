@@ -1,6 +1,7 @@
 from torchvision import datasets, transforms
 from base import BaseDataLoader
 from data_loader.mididatasetv1 import *
+from data_loader.midiclassifierdatasetv1 import *
 
 
 class MnistDataLoader(BaseDataLoader):
@@ -25,3 +26,10 @@ class BasicMidiDataloader(BaseDataLoader):
         self.dataset = BasicMidiDataset(data_dir, vocab_file, train=training, crop=crop, prefix=prefix, N=N)
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 
+class MidiClassifierDataLoader(BaseDataLoader):
+    """
+    MIDI classifier
+    """
+    def __init__(self, data_dir, vocab_file, batch_size, shuffle=True, validation_split=0.0, num_workers=1, training=True, crop=None, prefix=None, N=100):
+        self.dataset = MidiClassifierDataset(data_dir, vocab_file, train=training, crop=crop, prefix=prefix, N=N)
+        super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)

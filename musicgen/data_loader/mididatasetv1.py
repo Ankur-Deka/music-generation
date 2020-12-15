@@ -88,7 +88,7 @@ class BasicMidiDataset(Dataset):
         # Convert into indices
         seq = [self.vocab[x][1] for x in seq]
 
-        out = self.notes[i][idx+self.N+1]
+        out = self.notes[i][idx+self.N]
         out = self.vocab[out][1]
         return {
                 'seq': torch.LongTensor(seq),

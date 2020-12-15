@@ -97,10 +97,16 @@ class MidiClassifierDataset(Dataset):
 
         out = self.get_artist_name(self.files[i])
         out = self.artistsidx[out]
+
+        # Get next note too
+        nextnote = self.notes[i][idx+self.N]
+        nextnote = self.vocab[nextnote][1]
+
         return {
                 'seq': torch.LongTensor(seq),
                 'weight': torch.FloatTensor(self.weights),
                 'out': torch.LongTensor([out]).squeeze(),
+                'nextnote': torch.LongTensor([nextnote]).squeeze(),
         }
 
     def convert_to_midi(self, notes):

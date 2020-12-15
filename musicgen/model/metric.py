@@ -1,6 +1,5 @@
 import torch
 
-
 def accuracy(Output, Target):
     output = Output['out']
     target = Target['out']
@@ -22,6 +21,21 @@ def top_k_acc(Output, Target, k=3):
         for i in range(k):
             correct += torch.sum(pred[:, i] == target).item()
     return correct / len(target)
+
+def top_k_note_accuracy(Output, Target, k=1):
+    # Applicable for predictive model only
+    gtnote = Target['nextnote']
+    prednote = Output['nextnote']
+    return top_k_acc({'out': prednote}, {'out': gtnote}, k)
+
+def next_note_accuracy(output, target):
+    return top_k_note_accuracy(output, target, 1)
+
+def next_note_accuracy_5(output, target):
+    return top_k_note_accuracy(output, target, 5)
+
+def next_note_accuracy_10(output, target):
+    return top_k_note_accuracy(output, target, 10)
 
 def top_5_acc(output, target,):
     return top_k_acc(output, target, 5)
